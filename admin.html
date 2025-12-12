@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SafeSignup - Admin</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>SafeSignup</h1>
+    <nav>
+      <a class="link" href="index.html">Home</a>
+      <a class="link" href="about.html">About</a>
+      <a class="link" href="admin.html">Admin</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Admin Dashboard</h2>
+      <p class="muted">Uses the same API endpoint with different “modes”.</p>
+
+      <div class="button-row">
+        <button id="loadAttemptsBtn">Load Recent Attempts</button>
+        <button id="loadMetricsBtn">Load Metrics Chart</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Recent Attempts</h2>
+      <table class="table" id="attemptsTable">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Result</th>
+            <th>Reason</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Top Rejection Reasons (Chart.js)</h2>
+      <canvas id="metricsChart" width="400" height="200"></canvas>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
