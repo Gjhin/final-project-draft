@@ -10,7 +10,7 @@
 
 html, body{
   width:100%;
-  overflow-x:hidden; /* prevents sideways scroll */
+  overflow-x:hidden; 
 }
 
 body{
@@ -26,14 +26,14 @@ body{
   position: relative;
   display:flex;
   align-items:center;
-  justify-content:center;       /* centers the nav area */
+  justify-content:center;     
   gap:16px;
   padding:14px 18px;
   border-bottom:1px solid var(--border);
 }
 
 .topbar h1{
-  position:absolute;            /* keep title on the left */
+  position:absolute;         
   left:18px;
   margin:0;
   font-size:20px;
@@ -43,14 +43,13 @@ body{
   display:flex;
   gap:10px;
   flex-wrap:wrap;
-  justify-content:center;       /* centers links */
+  justify-content:center;      
 }
 
 
-/* ---------- LAYOUT (CENTERED, NO GIANT BOXES) ---------- */
-/* ---------- LAYOUT (CENTERED, USE SCREEN WIDTH) ---------- */
+
 .container{
-  width: min(100% - 32px, 1200px); /* wider than 980 so less empty space */
+  width: min(100% - 32px, 1200px);
   margin: 0 auto;
   padding: 18px 0;
   display:grid;
@@ -58,18 +57,17 @@ body{
 }
 
 
-/* --- HOME PAGE: avoid wide empty area, keep content compact --- */
+
 .card{
-  max-width: 720px;     /* makes boxes not super wide */
-  margin: 0 auto;       /* centers the cards */
+  max-width: 720px;    
+  margin: 0 auto;      
 }
 
 form{
-  max-width: 620px;     /* makes the textbox + button shorter */
-  margin-left: 0;       /* keep aligned inside the card */
+  max-width: 620px;   
+  margin-left: 0;       
 }
 
-/* Optional: if you want the input even shorter */
 input{
   max-width: 520px;
 }
@@ -85,7 +83,7 @@ label{
 
 input{
   width:100%;
-  min-width:0; /* IMPORTANT: prevents weird shrinking/overflow */
+  min-width:0; 
   padding:10px;
   border-radius:10px;
   border:1px solid var(--border);
@@ -114,7 +112,7 @@ button:hover{ filter: brightness(1.1); }
 }
 .hidden{ display:none; }
 
-/* ---------- TABLE ---------- */
+
 .table-wrap{ overflow-x:auto; }
 
 .table{
@@ -130,7 +128,7 @@ button:hover{ filter: brightness(1.1); }
   vertical-align:top;
 }
 
-/* ---------- BUTTON ROW ---------- */
+
 .button-row{
   display:flex;
   gap:10px;
@@ -138,7 +136,7 @@ button:hover{ filter: brightness(1.1); }
   margin-top:8px;
 }
 
-/* ---------- SWIPER / CAROUSEL ---------- */
+
 .swiper{
   width:100%;
   max-width:100%;
@@ -151,12 +149,12 @@ button:hover{ filter: brightness(1.1); }
   background:#0b1226;
 }
 
-/* Make media never overflow */
+
 img, canvas, iframe{
   max-width:100%;
 }
 
-/* ---------- MOBILE ---------- */
+
 @media (max-width: 600px){
   .topbar{
     flex-direction:column;
@@ -164,10 +162,11 @@ img, canvas, iframe{
   }
 
   form{
-    grid-template-columns: 1fr; /* stack input + button */
+    grid-template-columns: 1fr; 
   }
 
   button{
     width:100%;
   }
 }
+
