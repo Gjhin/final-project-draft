@@ -4,13 +4,13 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>SafeSignup - Admin</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header class="topbar">
     <h1>SafeSignup</h1>
     <nav>
-      <a class="link" href="index.html">Home</a>
+      <a class="link" href="home.html">Home</a>
       <a class="link" href="about.html">About</a>
       <a class="link" href="admin.html">Admin</a>
     </nav>
@@ -19,35 +19,45 @@
   <main class="container">
     <section class="card">
       <h2>Admin Dashboard</h2>
-      <p class="muted">Uses the same API endpoint with different “modes”.</p>
+      <p class="muted">
+        Uses ONE API endpoint: <code>POST /api/validate-email</code>.
+      </p>
 
       <div class="button-row">
-        <button id="loadAttemptsBtn">Load Recent Attempts</button>
-        <button id="loadMetricsBtn">Load Metrics Chart</button>
+        <button id="loadAttemptsBtn" type="button">Load Recent Attempts</button>
+        <button id="loadMetricsBtn" type="button">Load Metrics Chart</button>
       </div>
+
+      <p id="statusText" class="muted" style="margin-top:10px;"></p>
     </section>
 
     <section class="card">
       <h2>Recent Attempts</h2>
-      <table class="table" id="attemptsTable">
-        <thead>
-          <tr>
-            <th>Email</th>
-            <th>Result</th>
-            <th>Reason</th>
-            <th>Time</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+      <div class="table-wrap">
+        <table class="table" id="attemptsTable">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Result</th>
+              <th>Reason</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="4" class="muted">Click “Load Recent Attempts”.</td></tr>
+          </tbody>
+        </table>
+      </div>
     </section>
 
     <section class="card">
-      <h2>Top Rejection Reasons (Chart.js)</h2>
-      <canvas id="metricsChart" width="400" height="200"></canvas>
+      <h2>Top Rejection Reasons</h2>
+      <p class="muted">Click “Load Metrics Chart” to update.</p>
+      <canvas id="metricsChart" height="120"></canvas>
     </section>
   </main>
 
+  <!-- Chart.js library -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="admin.js"></script>
 </body>

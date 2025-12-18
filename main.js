@@ -1,25 +1,64 @@
+// Create Supabase client
+var supabaseClient = window.supabase.createClient(
+  window.CONFIG.SUPABASE_URL,
+  window.CONFIG.SUPABASE_ANON_KEY
+);
 
+// Grab elements
+var form = document.getElementById("signupForm");
+var emailInput = document.getElementById("emailInput");
+var resultBox = document.getElementById("resultBox");
 
-document.getElementById("signup-form").addEventListener("submit", async (event) => {
-    event.preventDefault();
-    
-    const email = document.getElementById("emailInput").value;
-    const box = document.getElementById("resultInput");
+form.onsubmit = function (event) {
+  event.preventDefault();
 
-    const res = await fetch("/api/validate-email", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-});
-    
-    const data = await res.json();
+  var email = emailInput.value.trim();
 
-    box.classList.remove("valid", "invalid");
-    box.textContent =
-         data.result === "accepted"
-         ? "✅ This email is valid and accepted."
-         : "❌ This email is invalid or not accepted.";
+  resultBox.classList.remove("hidden", "valid", "invalid");
+  resultBox.textContent = "Checking...";
 
-});
+  fetch("https://www.disify.com/api/email/" + encodeURIComponent(email))
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+      var accepted =
+        data.domain === "umd.edu" &&
+        data.format &&
+        !data.disposable &&
+        data.dns;
+
+      var result = accepted ? "Accepted" : "Rejected";
+
+      var reasons = [];
+      if (data.domain !== "umd.edu") reasons.push("Domain not umd.edu");
+      if (!data.format) reasons.push("Invalid format");
+      if (data.disposable) reasons.push("Disposable email");
+      if (!data.dns) reasons.push("DNS check failed");
+
+      var reason = accepted ? "OK" : (reasons.length ? reasons.join("; ") : "Rejected by policy");
+
+      // UI update
+      if (accepted) {
+        resultBox.textContent = "This email is valid and accepted.";
+        resultBox.classList.add("valid");
+      } else {
+        resultBox.textContent = "This email is invalid or not accepted.";
+        resultBox.classList.add("invalid");
+      }
+
+      // Insert into Supabase table "Signup"
+      return supabaseClient.from("Signup").insert({
+        email: email,
+        result: result,
+        reason: reason,
+        created_at: new Date().toISOString()
+      });
+    })
+    .then(function (insertResponse) {
+      if (insertResponse && insertResponse.error) {
+        console.log("Supabase insert error:", insertResponse.error);
+      } else {
+        console.log("Logged to Supabase:", insertResponse);
+      }
+    });
+};
+
