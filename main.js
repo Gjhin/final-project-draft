@@ -1,63 +1,74 @@
-
-var supabaseClient = window.supabase.createClient(
-  window.CONFIG.SUPABASE_URL,
-  window.CONFIG.SUPABASE_ANON_KEY
-);
+document.addEventListener("DOMContentLoaded", () => {
 
 
-var form = document.getElementById("signupForm");
-var emailInput = document.getElementById("emailInput");
-var resultBox = document.getElementById("resultBox");
-
-form.onsubmit = function (event) {
-  event.preventDefault();
-
-  var email = emailInput.value.trim();
-
-  resultBox.classList.remove("hidden", "valid", "invalid");
-  resultBox.textContent = "Checking...";
-
-  fetch("https://www.disify.com/api/email/" + encodeURIComponent(email))
-    .then(function (res) { return res.json(); })
-    .then(function (data) {
-      var accepted =
-        data.domain === "umd.edu" &&
-        data.format &&
-        !data.disposable &&
-        data.dns;
-
-      var result = accepted ? "Accepted" : "Rejected";
-
-      var reasons = [];
-      if (data.domain !== "umd.edu") reasons.push("Domain not umd.edu");
-      if (!data.format) reasons.push("Invalid format");
-      if (data.disposable) reasons.push("Disposable email");
-      if (!data.dns) reasons.push("DNS check failed");
-
-      var reason = accepted ? "OK" : (reasons.length ? reasons.join("; ") : "Rejected by policy");
+  var supabaseClient = window.supabase.createClient(
+    window.CONFIG.SUPABASE_URL,
+    window.CONFIG.SUPABASE_ANON_KEY
+  );
 
 
-      if (accepted) {
-        resultBox.textContent = "This email is valid and accepted.";
-        resultBox.classList.add("valid");
-      } else {
-        resultBox.textContent = "This email is invalid or not accepted.";
-        resultBox.classList.add("invalid");
-      }
+  var form = document.getElementById("signupForm");
+  var emailInput = document.getElementById("emailInput");
+  var resultBox = document.getElementById("resultBox");
+  const swiperEl = document.querySelector(".swiper");
 
-      return supabaseClient.from("Signup").insert({
+
+
+  if (swiperEl && window.Swiper) {
+    new Swiper(".swiper", {
+      loop: true,
+      spaceBetween: 12,
+      grabCursor: true,
+      pagination: {
+        el: ".swiper-pagination",
+        clickable: true
+      },
+      autoplay: {
+        delay: 3500,
+        disableOnInteraction: false
+      },
+      keyboard: { enabled: true }
+    });
+  }
+
+
+  
+
+  if (!form || !emailInput || !resultBox) {
+    console.log("Signup form elements not found on this page.");
+    return;
+  }
+
+  form.onsubmit = function (event) {
+    event.preventDefault();
+
+    var email = emailInput.value.trim();
+    var isUmd = /^[^@\s]+@umd\.edu$/i.test(email); 
+    resultBox.classList.remove("hidden", "valid", "invalid");
+
+    if (!isUmd) {
+      resultBox.textContent = "Only @umd.edu emails are accepted.";
+      resultBox.classList.add("invalid");
+
+      supabaseClient.from("Signup").insert({
         email: email,
-        result: result,
-        reason: reason,
+        result: "Rejected",
+        reason: "Domain not umd.edu",
         created_at: new Date().toISOString()
       });
-    })
-    .then(function (insertResponse) {
-      if (insertResponse && insertResponse.error) {
-        console.log("Supabase insert error:", insertResponse.error);
-      } else {
-        console.log("Logged to Supabase:", insertResponse);
-      }
+
+      return;
+    }
+
+    resultBox.textContent = "Accepted: UMD email confirmed.";
+    resultBox.classList.add("valid");
+
+    supabaseClient.from("Signup").insert({
+      email: email,
+      result: "Accepted",
+      reason: "OK",
+      created_at: new Date().toISOString()
     });
-};
+  };
+});
 
