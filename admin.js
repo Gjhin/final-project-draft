@@ -1,94 +1,137 @@
-document.addEventListener("DOMContentLoaded", () => {
-  // IMPORTANT: set this to your teammate's backend port
-  const API_URL = "http://localhost:3000/api/validate-email";
+// Create Supabase client
+var supabaseClient = window.supabase.createClient(
+  window.CONFIG.SUPABASE_URL,
+  window.CONFIG.SUPABASE_ANON_KEY
+);
 
-  const loadAttemptsBtn = document.getElementById("loadAttemptsBtn");
-  const loadMetricsBtn  = document.getElementById("loadMetricsBtn");
-  const statusText      = document.getElementById("statusText");
-  const tbody           = document.querySelector("#attemptsTable tbody");
-  const chartCanvas     = document.getElementById("metricsChart");
+// Grab elements
+var loadAttemptsBtn = document.getElementById("loadAttemptsBtn");
+var loadMetricsBtn  = document.getElementById("loadMetricsBtn");
+var statusText      = document.getElementById("statusText");
+var tbody           = document.querySelector("#attemptsTable tbody");
+var chartCanvas     = document.getElementById("metricsChart");
 
-  let chart = null;
+var chart = null;
 
-  loadAttemptsBtn.addEventListener("click", loadAttempts);
-  loadMetricsBtn.addEventListener("click", loadMetrics);
+// Button handlers
+loadAttemptsBtn.onclick = function () {
+  loadAttempts(25);
+};
 
-  async function postJSON(payload) {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
+loadMetricsBtn.onclick = function () {
+  loadMetrics(200);
+};
 
-    const text = await res.text();
-    if (!res.ok) throw new Error(`(${res.status}) ${text}`);
+// Load recent attempts
+function loadAttempts(limit) {
+  statusText.textContent = "Loading attempts...";
+  tbody.innerHTML = '<tr><td colspan="4" class="muted">Loading...</td></tr>';
 
-    return JSON.parse(text);
-  }
-
-  async function loadAttempts() {
-    statusText.textContent = "Loading attempts...";
-    tbody.innerHTML = `<tr><td colspan="4" class="muted">Loading...</td></tr>`;
-
-    try {
-      const data = await postJSON({ mode: "recent", limit: 25 });
-      const attempts = Array.isArray(data.attempts) ? data.attempts : [];
-
-      tbody.innerHTML = "";
-      if (attempts.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="muted">No attempts found.</td></tr>`;
-      } else {
-        attempts.forEach(a => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${escapeHtml(a.email || "")}</td>
-            <td>${escapeHtml(a.result || "")}</td>
-            <td>${escapeHtml(a.reason || "")}</td>
-            <td>${a.created_at ? new Date(a.created_at).toLocaleString() : ""}</td>
-          `;
-          tbody.appendChild(tr);
-        });
+  supabaseClient
+    .from("Signup")
+    .select("email,result,reason,created_at")
+    .order("created_at", { ascending: false })
+    .limit(limit)
+    .then(function (res) {
+      if (res.error) {
+        statusText.textContent = "Failed to load attempts.";
+        console.log(res.error);
+        return;
       }
 
-      statusText.textContent = `Loaded ${attempts.length} attempt(s).`;
-    } catch (err) {
-      statusText.textContent = "Failed to load attempts.";
-      tbody.innerHTML = `<tr><td colspan="4">Error: ${escapeHtml(err.message)}</td></tr>`;
-      console.error(err);
-    }
-  }
+      var rows = res.data || [];
+      tbody.innerHTML = "";
 
-  async function loadMetrics() {
-    statusText.textContent = "Loading metrics...";
+      if (rows.length === 0) {
+        tbody.innerHTML =
+          '<tr><td colspan="4" class="muted">No attempts found.</td></tr>';
+        statusText.textContent = "No data found.";
+        return;
+      }
 
-    try {
-      const data = await postJSON({ mode: "metrics" });
-      const topReasons = Array.isArray(data.topReasons) ? data.topReasons : [];
+      for (var i = 0; i < rows.length; i++) {
+        var a = rows[i];
+        var tr = document.createElement("tr");
 
-      const labels = topReasons.map(x => x.reason);
-      const values = topReasons.map(x => x.count);
+        tr.innerHTML =
+          "<td>" + escapeHtml(a.email) + "</td>" +
+          "<td>" + escapeHtml(a.result) + "</td>" +
+          "<td>" + escapeHtml(a.reason) + "</td>" +
+          "<td>" + formatTime(a.created_at) + "</td>";
+
+        tbody.appendChild(tr);
+      }
+
+      statusText.textContent = "Loaded " + rows.length + " attempt(s).";
+    });
+}
+
+// Load Metric Chart
+function loadMetrics(limit) {
+  statusText.textContent = "Loading metrics...";
+
+  supabaseClient
+    .from("Signup")
+    .select("result,reason")
+    .limit(limit)
+    .then(function (res) {
+      if (res.error) {
+        statusText.textContent = "Failed to load metrics.";
+        console.log(res.error);
+        return;
+      }
+
+      var rows = res.data || [];
+      var counts = {};
+
+      for (var i = 0; i < rows.length; i++) {
+        if (rows[i].result !== "Rejected") continue;
+
+        var reason = rows[i].reason || "Unknown";
+        if (!counts[reason]) counts[reason] = 0;
+        counts[reason]++;
+      }
+
+      var labels = [];
+      var values = [];
+
+      for (var key in counts) {
+        labels.push(key);
+        values.push(counts[key]);
+      }
 
       if (chart) chart.destroy();
       chart = new Chart(chartCanvas, {
         type: "bar",
         data: {
-          labels,
-          datasets: [{ label: "Rejections", data: values }]
+          labels: labels,
+          datasets: [
+            { label: "Rejections", data: values }
+          ]
         },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false
+        }
       });
 
       statusText.textContent = "Metrics updated.";
-    } catch (err) {
-      statusText.textContent = "Failed to load metrics.";
-      console.error(err);
-      alert("Metrics error: " + err.message);
-    }
-  }
+    });
+}
 
-  function escapeHtml(str) {
-    return String(str).replace(/[&<>"']/g, s => ({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-    }[s]));
-  }
-});
+// Utility functions
+function formatTime(ts) {
+  return ts ? new Date(ts).toLocaleString() : "";
+}
+
+function escapeHtml(str) {
+  return String(str || "").replace(/[&<>"']/g, function (s) {
+    return {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;"
+    }[s];
+  });
+}

@@ -6,9 +6,10 @@ npm install
 npm run dev
 
 ## API Endpoints
-POST /api/validate-email – validates and logs signup attempts  
-GET /api/attempts – returns recent signup attempts  
-GET /api/metrics – returns aggregated rejection reasons  
+POST /api/validate-email
+- mode: "check" → validate email
+- mode: "recent" → return recent attempts
+- mode: "metrics" → return aggregated rejection reasons
 
 ## Known Issues
 - No auth on admin dashboard
