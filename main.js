@@ -1,10 +1,10 @@
-// Create Supabase client
+
 var supabaseClient = window.supabase.createClient(
   window.CONFIG.SUPABASE_URL,
   window.CONFIG.SUPABASE_ANON_KEY
 );
 
-// Grab elements
+
 var form = document.getElementById("signupForm");
 var emailInput = document.getElementById("emailInput");
 var resultBox = document.getElementById("resultBox");
@@ -36,7 +36,7 @@ form.onsubmit = function (event) {
 
       var reason = accepted ? "OK" : (reasons.length ? reasons.join("; ") : "Rejected by policy");
 
-      // UI update
+
       if (accepted) {
         resultBox.textContent = "This email is valid and accepted.";
         resultBox.classList.add("valid");
@@ -45,7 +45,6 @@ form.onsubmit = function (event) {
         resultBox.classList.add("invalid");
       }
 
-      // Insert into Supabase table "Signup"
       return supabaseClient.from("Signup").insert({
         email: email,
         result: result,
