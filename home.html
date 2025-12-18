@@ -4,8 +4,8 @@
   <title>SafeSignup - Home</title>
 
   <link rel="stylesheet" href="style.css" />
-
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+ 
 </head>
 
 <body>
@@ -21,12 +21,19 @@
   <main class="container">
     <section class="card">
       <h2>Create Account</h2>
-      <p class="muted">Checks email domain + blocks disposable/invalid emails.</p>
+      <p class="muted">Checks email domain and blocks disposable/invalid emails.</p>
 
       <form id="signupForm">
         <div>
-          <label for="emailInput">Email</label>
-          <input id="emailInput" type="email" placeholder="name@umd.edu" required />
+          <input
+          id="emailInput"
+          type="email"
+          placeholder="name@umd.edu"
+          required
+          pattern="^[^@\s]+@umd\.edu$"
+          title="Please use your @umd.edu email."
+        />
+
         </div>
         <button type="submit">Check Email</button>
       </form>
@@ -46,7 +53,7 @@
           </div>
           <div class="swiper-slide slide">
             <h3>Step 2</h3>
-            <p>We check domain + disposable/valid.</p>
+            <p>We check domain and disposable/valid.</p>
           </div>
           <div class="swiper-slide slide">
             <h3>Step 3</h3>
@@ -65,4 +72,8 @@
   <script src="main.js"></script>
 </body>
 </html>
+
+
+</html>
+
 
