@@ -1,10 +1,10 @@
-// Create Supabase client
+
 var supabaseClient = window.supabase.createClient(
   window.CONFIG.SUPABASE_URL,
   window.CONFIG.SUPABASE_ANON_KEY
 );
 
-// Grab elements
+
 var loadAttemptsBtn = document.getElementById("loadAttemptsBtn");
 var loadMetricsBtn  = document.getElementById("loadMetricsBtn");
 var statusText      = document.getElementById("statusText");
@@ -13,7 +13,7 @@ var chartCanvas     = document.getElementById("metricsChart");
 
 var chart = null;
 
-// Button handlers
+
 loadAttemptsBtn.onclick = function () {
   loadAttempts(25);
 };
@@ -22,7 +22,7 @@ loadMetricsBtn.onclick = function () {
   loadMetrics(200);
 };
 
-// Load recent attempts
+
 function loadAttempts(limit) {
   statusText.textContent = "Loading attempts...";
   tbody.innerHTML = '<tr><td colspan="4" class="muted">Loading...</td></tr>';
@@ -66,7 +66,7 @@ function loadAttempts(limit) {
     });
 }
 
-// Load Metric Chart
+
 function loadMetrics(limit) {
   statusText.textContent = "Loading metrics...";
 
@@ -119,7 +119,7 @@ function loadMetrics(limit) {
     });
 }
 
-// Utility functions
+
 function formatTime(ts) {
   return ts ? new Date(ts).toLocaleString() : "";
 }
@@ -135,3 +135,4 @@ function escapeHtml(str) {
     }[s];
   });
 }
+
